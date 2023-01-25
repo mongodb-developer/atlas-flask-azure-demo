@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/97073cf2-785a-4066-9f3e-c57d0ed0e0cd/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/azure-demo-anaiya",
+    "appService.deploySubpath": "."
+}
