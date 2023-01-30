@@ -77,3 +77,4 @@ def removebook(name,pages):
         database['books'].delete_one({"book": name, "pages": pages})
 
         return "update: Your book has been removed from your bookshelf."
+
