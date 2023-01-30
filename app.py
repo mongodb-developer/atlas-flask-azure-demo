@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request
 from pymongo import MongoClient
 
-# connect to your database environment variable for your connect
+# connect to your database environment variable for your connection
 load_dotenv()
 mongo_uri = os.environ.get('MONGO_URI')
 connect = MongoClient(mongo_uri)
