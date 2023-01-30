@@ -56,7 +56,7 @@ def update_book(book_id: str):
     new_pages = request.json['pages']
     collection.update_one({"_id": bson.ObjectId(book_id)}, {"$set": {"book": new_book, "pages": new_pages}})
 
-    return f"UPDATE: Your book has been updated to: {new_book} ({new_pages} pages)\n"
+    return f"UPDATE: Your book has been updated to: {new_book} ({new_pages} pages).\n"
 
 # DELETE
 @app.route("/books/<string:book_id>", methods = ['DELETE'])
