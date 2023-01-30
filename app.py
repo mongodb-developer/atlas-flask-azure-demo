@@ -29,8 +29,8 @@ def index():
 def books():
     if request.method == 'POST':
         # CREATE
-        book = request.json['book']
-        pages = request.json['pages']
+        book: str = request.json['book']
+        pages: str = request.json['pages']
 
         # insert new book into books collection in MongoDB
         collection.insert_one({"book": book, "pages": pages})
@@ -54,8 +54,8 @@ def books():
 # UPDATE
 @app.route("/books/<string:book_id>", methods = ['PUT'])
 def update_book(book_id: str):
-    new_book = request.json['book']
-    new_pages = request.json['pages']
+    new_book: str = request.json['book']
+    new_pages: str = request.json['pages']
     collection.update_one({"_id": bson.ObjectId(book_id)}, {"$set": {"book": new_book, "pages": new_pages}})
 
     return f"UPDATE: Your book has been updated to: {new_book} ({new_pages} pages).\n"
