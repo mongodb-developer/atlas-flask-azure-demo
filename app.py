@@ -4,15 +4,17 @@ import bson
 from dotenv import load_dotenv
 from flask import Flask, render_template, request
 from pymongo import MongoClient
+from pymongo.collection import Collection
+from pymongo.database import Database
 
-# Access your MongoDB Atlas cluster
+# access your MongoDB Atlas cluster
 load_dotenv()
-mongo_uri = os.environ.get('MONGO_URI')
-connection_string = MongoClient(mongo_uri)
+connection_string: str = os.environ.get("CONNECTION_STRING")
+mongo_client: MongoClient = MongoClient(connection_string)
 
 # add in your database and collection from Atlas
-database = connection_string["bookshelf"]
-collection = database["books"]
+database: Database = mongo_client.get_database("bookshelf")
+collection: Collection = database.get_collection("books")
 
 # instantiating new object with "name"
 app = Flask(__name__)
