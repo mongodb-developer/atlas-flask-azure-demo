@@ -17,7 +17,7 @@ database: Database = mongo_client.get_database("bookshelf")
 collection: Collection = database.get_collection("books")
 
 # instantiating new object with "name"
-app = Flask(__name__)
+app: Flask = Flask(__name__)
 
 # our initial form page
 @app.route('/')  # root is "/"
