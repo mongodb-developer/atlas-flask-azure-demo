@@ -1,80 +1,68 @@
 import os
 
+import bson
 from dotenv import load_dotenv
 from flask import Flask, render_template, request
 from pymongo import MongoClient
 
-# connect to your database environment variable for your connection
+# Access your MongoDB Atlas cluster
 load_dotenv()
 mongo_uri = os.environ.get('MONGO_URI')
-connect = MongoClient(mongo_uri)
+connection_string = MongoClient(mongo_uri)
 
 # add in your database and collection from Atlas
-database = connect["bookshelf"]
+database = connection_string["bookshelf"]
 collection = database["books"]
 
 # instantiating new object with "name"
 app = Flask(__name__)
-
 
 # our initial form page
 @app.route('/')  # root is "/"
 def index():
     return render_template("index.html")
 
-
-# CREATE
-@app.route('/new-book', methods=['POST'])
-def add_book():
-    # POST new book this is how you'll enter it in Postman
+# CREATE and READ 
+@app.route('/books', methods=["GET", "POST"])
+def books():
     if request.method == 'POST':
-        # request.json returns a JSON object. So you'll see it pretty in Postman
+        # CREATE
         book = request.json['book']
         pages = request.json['pages']
 
         # insert new book into books collection in MongoDB
-        database['books'].insert_one({"book": book, "pages": pages})
+        collection.insert_one({"book": book, "pages": pages})
 
-        return "update: Your book has been added to your bookshelf."
+        return f"CREATE: Your book {book} ({pages} pages) has been added to your bookshelf.\n "
 
+    elif request.method == 'GET':
+        # READ
+        bookshelf = list(collection.find())
+        novels = []
 
-# READ
-@app.route('/view-books', methods=['GET'])
-def view_book():
-    if request.method == 'GET':
-        # view all books in your mongodb database
-        bookshelf = list(database['books'].find())
-        titles = []
-
-        # make it pretty
-        for books in bookshelf:
-            book = books['book']
-            pages = books['pages']
+        for titles in bookshelf:
+            book = titles['book']
+            pages = titles['pages']
             shelf = {'book': book, 'pages': pages}
-            # books will go to the top of the list
-            titles.insert(0, shelf)
-        print(titles)
+            novels.insert(0,shelf)
 
-        return titles
-
+        return novels
+    
 
 # UPDATE
-@app.route('/exchange-book/<string:name>/<int:pages>', methods=['PUT'])  # to update in postman use PUT
-def exchange_book(name, pages):
-    if request.method == 'PUT':
-        new_book = request.json['book']
-        new_pages = request.json['pages']
+@app.route("/books/<string:book_id>", methods = ['PUT'])
+def update_book(book_id: str):
+    new_book = request.json['book']
+    new_pages = request.json['pages']
+    collection.update_one({"_id": bson.ObjectId(book_id)}, {"$set": {"book": new_book, "pages": new_pages}})
 
-        # this updates your selected book
-        database['books'].update_one({"book": name, "pages": pages}, {"$set": {"book": new_book, "pages": new_pages}})
+    return f"UPDATE: Your book has been updated to: {new_book} ({new_pages} pages)\n"
 
-        return "update: Your book has been exchanged."
+# DELETE
+@app.route("/books/<string:book_id>", methods = ['DELETE'])
+def remove_book(book_id: str):
+    collection.delete_one({"_id": bson.ObjectId(book_id)})
+
+    return f"DELETE: Your book (id = {book_id}) has been removed from your bookshelf.\n"
 
 
-# DELETE WORKS
-@app.route('/remove-book/<string:name>/<int:pages>', methods=['DELETE'])
-def remove_book(name, pages):
-    if request.method == 'DELETE':
-        database['books'].delete_one({"book": name, "pages": pages})
-
-        return "update: Your book has been removed from your bookshelf."
